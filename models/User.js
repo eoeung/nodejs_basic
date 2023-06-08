@@ -12,7 +12,8 @@ const userSchema = mongoose.Schema({
         type: String,
         trim: true, // 공백을 없애주는 역할
         unique: 1, // 오로지 같은 것은 1개만 받음
-    }, password: {
+    },
+    password: {
         type: String,
         minlength: 5,
     },

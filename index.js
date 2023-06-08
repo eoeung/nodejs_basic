@@ -1,22 +1,39 @@
-const express = require('express'); // 아까 다운로드 받은 express 모듈을 가지고 온다.
-const app = express(); // function을 이용해서 새로운 application을 만든다.
-const port = 5000;
+const express = require('express');
+const mongoose = require('mongoose');
+const secure = require('./secure');
+const { User } = require('./models/User');
+const bodyParser = require('body-parser');
 
-const secure = require('./secure'); // 중요 정보 저장
-const mongoose = require('mongoose'); // Mongoose를 이용해서 Application과 MongoDB 연결
+const app = express();
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
 mongoose.connect(`mongodb+srv://${secure.id}:${secure.pwd}@${secure.clusterName}.${secure.url}`, {
-  // MongoDB 6.0부터는 아래 내용이 기본적으로 지원됨
-  // useNewUrlParser: true,
-  // useUniFiedTopology: true, 
-  // useCreateIndex: true,
-  // useFindAndModify: false
 }).then(() => console.log('MongoDB Connected..'))
   .catch(err => console.log(err));
 
 app.get('/', (req, res) => {
-  res.send('Hello World! ~~ 안녕하세요 ~~')
-}); // root directory에 Hello World를 출력하게 설정
+    res.send('Hello World! ~~ 안녕하세요 ~~')
+});
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-}); // 아까 지정한 port로 해당 application을 실행
+// 회원가입을 위한 route 생성 (Register Route)
+app.post('/register', (req, res) => {
+    // 회원가입 할 때 필요한 정보들을 client에서 가져오면
+    // 가져온 정보들을 DB에 저장
+
+    // body-parser가 있기 때문에 클라이언트의 정보를 request body로 받아올 수 있음
+    const user = new User(req.body);
+
+    //mongoDB 메서드, user모델에 저장
+    const result = user.save().then(()=>{
+      res.status(200).json({
+        success: true
+      })
+    }).catch((err)=>{
+      res.json({ success: false, err })
+    });
+});
+
+app.listen(`${secure.port}`, () => {
+    console.log(`Example app listening on port ${secure.port}`)
+});
