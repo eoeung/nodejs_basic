@@ -4,7 +4,7 @@
 const express = require('express'); // 아까 다운로드 받은 express 모듈을 가지고 온다.
 // $ npm install mongoose --save
 const mongoose = require('mongoose'); // Mongoose를 이용해서 Application과 MongoDB 연결
-// const secure = require('./secure'); // 중요 정보 저장 // config폴더에 있는 dev.js, prod.js, key.js로 구분
+// const secure = require('./secure'); // 중요 정보 저장 // 이제는 secure를 사용하지 않고 config폴더에 있는 dev.js, prod.js, key.js로 구분
 const config = require('./config/key'); // config폴더에 있는 key.js 정보를 가지고 온다.
 
 const { User } = require('./models/User'); // 미리 만들었던 User Schema를 가지고온다.
@@ -13,11 +13,12 @@ const bodyParser = require('body-parser'); // body-parser 모듈을 가지고 �
 // body-parser는 클라이언트에서 오는 정보를 서버에서 분석해서 가져올 수 있게 해주는 모듈
 
 const app = express(); // function을 이용해서 새로운 application을 만든다.
+const port = 5000; // 포트
 app.use(bodyParser.urlencoded({extended: true})); // application/x-www-form-urlencoded <<이런 모양으로 된 데이터를 분석해서 가져올 수 있게 해주는 역할
 app.use(bodyParser.json()); // 마찬가지로 application/json을 분석해서 가져올 수 있게 해준다.
 
 // mongoose.connect(`mongodb+srv://${secure.id}:${secure.pwd}@${secure.clusterName}.${secure.url}`, {
-mongoose.connect('', {
+mongoose.connect(config.mongoURI, {
   // MongoDB 6.0부터는 아래 내용이 기본적으로 지원됨
   // useNewUrlParser: true,
   // useUniFiedTopology: true, 
