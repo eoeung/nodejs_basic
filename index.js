@@ -1,14 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const secure = require('./secure');
+const config = require('./config/key');
+
 const { User } = require('./models/User');
 const bodyParser = require('body-parser');
 
 const app = express();
+const port = 5000;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-mongoose.connect(`mongodb+srv://${secure.id}:${secure.pwd}@${secure.clusterName}.${secure.url}`, {
+mongoose.connect(config.mongoURI, {
 }).then(() => console.log('MongoDB Connected..'))
   .catch(err => console.log(err));
 
@@ -34,6 +36,6 @@ app.post('/register', (req, res) => {
     });
 });
 
-app.listen(`${secure.port}`, () => {
-    console.log(`Example app listening on port ${secure.port}`)
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
 });
