@@ -26,6 +26,9 @@ app.post('/register', (req, res) => {
     // body-parser가 있기 때문에 클라이언트의 정보를 request body로 받아올 수 있음
     const user = new User(req.body);
 
+    // save하기 전에 비밀번호를 암호화해야한다. → User.js 참고
+    // bcrypt이용
+
     //mongoDB 메서드, user모델에 저장
     const result = user.save().then(()=>{
       res.status(200).json({
