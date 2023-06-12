@@ -1,4 +1,4 @@
-# Node.js Basic Study
+# Node.js & React Basic Study
 
 |날짜|내용|명령어|비고|
 |:---:|:---|:---|:---|
