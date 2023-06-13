@@ -39,6 +39,37 @@ app.post('/register', (req, res) => {
     });
 });
 
+// 로그인
+app.post('/login', (req, res) => {
+  // 1. 요청된 이메일을 DB에 있는지 찾는다.
+  User.findOne({ email: req.body.email }, (err, user) => {
+    if(!user){
+      return res.json({
+        loginSuccess: false,
+        message: "제공된 이메일에 해당하는 유저가 없습니다."
+      });
+    }
+    // 2. 요청된 이메일이 DB에 있다면, 비밀번호가 일치하는지 확인
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if(!isMatch)
+      return res.json({ loginSuccess: false, message: "비밀번호가 틀렸습니다." });
+
+      // 3. 비밀번호까지 맞다면 토큰 생성하기
+      user.generateToken((err, user) => {
+        
+      });
+    });
+  
+  });
+
+  
+
+  
+
+
+});
+
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 });

@@ -57,9 +57,22 @@ userSchema.pre('save', function(next){
                 next();
             });
         });
+    } else{
+        next(); // 이 부분이 없으면 계속 위 코드에서 머물게 됨(비밀번호 수정이 아닌 경우)
     }
     
 });
+
+// 입력한 비밀번호가 맞는지 DB에서 확인
+userSchema.methods.comparePassword = function(plainPassword, cb){
+    // plainPassword: 1234567   암호화된 비밀번호: $2b$10$LWnX73r/q3H0lXf6.98NCeW6XpTV6uTtsY.cdhZc6psxEMMwpSWVm
+    // DB에 있는 암호를 복호화해서 비교할 수 없음
+    // → 입력한 비밀번호를 암호화한 다음, DB에 있는 비밀번호와 비교한다.
+    bcrypt.compare(plainPassword, this.password, function(err, isMatch){
+        if(err) return cb(err),
+            cb(null, isMatch); // error를 주지 않고 null로 전달(성공시)
+    });
+}
 
 const User = mongoose.model('User', userSchema); // mongoose.model(모델이름, 정의한 스키마);
 
