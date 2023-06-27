@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const config = require('./config/key');
 
 const { User } = require('./models/User');
+const { auth } = require('./middleware/auth');
+
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
@@ -10,6 +12,7 @@ const app = express();
 const port = 5000;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 mongoose.connect(config.mongoURI, {
 }).then(() => console.log('MongoDB Connected..'))
@@ -20,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // 회원가입을 위한 route 생성 (Register Route)
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
     // 회원가입 할 때 필요한 정보들을 client에서 가져오면
     // 가져온 정보들을 DB에 저장
 
@@ -39,7 +42,7 @@ app.post('/register', (req, res) => {
 });
 
 // 로그인
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
   // 1. 요청된 이메일을 DB에 있는지 찾는다.
   User.findOne({ email: req.body.email })
   .then(user => {
@@ -69,6 +72,31 @@ app.post('/login', (req, res) => {
   });
 });
 
+// auth?? : end-point의 request를 받아서 callback 하기 전에 middleware에서 먼저 처리하기 위해 auth라는 middleware를 선언
+app.get('/api/users/auth', auth, (req, res) => {
+  // middleware에서 인증에 성공하지 못하면 여기까지 도달하지 못하고, 중간에 callback으로 빠져 나가게 됨
+  // 여기 까지 middleware를 통과해 왔다는 이야기는 Authentication이 true라는 말임
+  // auth에서 request로 정보를 넣어줬기 때문에 가능하다.
+  res.status(200).json({
+    _id: req.user.id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: true,
+    name: req.user.email,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image
+  });
+});
+
+app.get('/api/users/logout', auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: ""})
+  .then(user => {
+    res.status(200).send({ success: true });
+  }).catch((err => {
+    return res.json({ success: false, err });
+  }));
+});
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

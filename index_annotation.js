@@ -11,6 +11,8 @@ const { User } = require('./models/User'); // 미리 만들었던 User Schema를
 // $ npm install body-parser --save
 const bodyParser = require('body-parser'); // body-parser 모듈을 가지고 온다.
 // body-parser는 클라이언트에서 오는 정보를 서버에서 분석해서 가져올 수 있게 해주는 모듈
+const cookieParser = require('cookie-parser'); // $ npm install cookie-parser --save
+app.use(cookieParser());
 
 const app = express(); // function을 이용해서 새로운 application을 만든다.
 const port = 5000; // 포트
@@ -35,7 +37,7 @@ app.get('/', (req, res) => {
 // postman 다운로드 (https://www.postman.com/downloads/?utm_source=postman-home)
 // 회원가입을 위한 route 생성 (Register Route)
 // route의 end-point는 '/register'
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
     // 회원가입 할 때 필요한 정보들을 client에서 가져오면
     // 가져온 정보들을 DB에 저장
 
@@ -68,7 +70,7 @@ app.post('/register', (req, res) => {
 });
 
 // 로그인
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
   // 1. 요청된 이메일을 DB에 있는지 찾는다.
   User.findOne({ email: req.body.email })
   .then(user => { // request.body에서 입력된 email을 가지고 온다. → 일치하면 user객체를 전달
@@ -96,6 +98,32 @@ app.post('/login', (req, res) => {
   .catch((err) => {
     return res.status(400).send(err);
   });
+});
+
+// auth?? : end-point의 request를 받아서 callback 하기 전에 middleware에서 먼저 처리하기 위해 auth라는 middleware를 선언
+app.get('/api/users/auth', auth, (req, res) => {
+  // middleware에서 인증에 성공하지 못하면 여기까지 도달하지 못하고, 중간에 callback으로 빠져 나가게 됨
+  // 여기 까지 middleware를 통과해 왔다는 이야기는 Authentication이 true라는 말임
+  // auth에서 request로 정보를 넣어줬기 때문에 가능하다.
+  res.status(200).json({
+    _id: req.user.id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: true,
+    name: req.user.email,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image
+  });
+});
+
+app.get('/api/users/logout', auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: ""})
+  .then(user => {
+    res.status(200).send({ success: true });
+  }).catch((err => {
+    return res.json({ success: false, err });
+  }));
 });
 
 app.listen(port, () => {

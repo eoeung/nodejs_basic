@@ -28,6 +28,7 @@ const userSchema = mongoose.Schema({
         maxlength: 50,
     },
     role: { // 유저별로 권한을 부여할 수 있게 설정
+        // 0: 일반유저, 1: 관리자, 2: 특정 부서 관리자
         type: Number,
         default: 0,
     },
@@ -92,6 +93,25 @@ userSchema.methods.generateToken = function(cb){
         cb(null, user);
     }).catch((err) => {
         if(err) return cb(err);
+    });
+};
+
+userSchema.statics.findByToken = function(token, cb){
+    var user = this;
+
+    // user._id + '' = token;
+
+    // 토큰을 decode 한다.
+    jwt.verify(token, 'secretToken', function(err, decoded){
+        // 유저 아이디를 이용해서 유저를 찾은 다음에
+        // 클라이언트에서 가져온 token과 DB에 저장된 토큰이 일치하는지 확인
+        user.findOne({"_id" : decoded, "token": token})
+        .then(user => {
+            cb(null, user);
+        })
+        .catch((err => {
+            return cb(err);
+        }));
     });
 };
 

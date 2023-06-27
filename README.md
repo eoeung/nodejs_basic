@@ -1,6 +1,7 @@
 # Node.js & React Basic Study
 
 <br>
+<br>
 
 ||날짜|내용|명령어|비고|
 |:---:|:---:|:---|:---|:---|
@@ -9,4 +10,5 @@
 |3|23.06.08|- body-parser 설치 <br>- postman 설치해서 회원가입을 postman 툴로 진행|```$npm install body-parser --save```|※ 8000 AtlasError 해결(유저 권한에서 read and write 추가)|
 |4|23.06.12|- Nodemon 다운로드 <br>- 중요 정보 관리방법 <br>- bcrypt이용해서 중요 정보 암호화하기|```$npm install nodemon --save-dev``` <br><br> ```$npm install bcrypt --save``` <br> ```bcrypt.genSalt(saltRounds)```<br> ```bcrypt.hash(user.password, salt)```|※ Nodemon으로 코드 수정되면 자동으로 서버가 reload되도록 설정 <br>※ config폴더 생성하여 중요 정보만을 기록하는 js파일을 만들어서 관리 <br>(dev, prod로 나눠서 관리) <br>※ user의 정보를 저장하기 전, 암호화 처리(salt, hash 이용)|
 |5|23.06.14|- 로그인 기능 구현-1 |```User.findOne({ email: req.body.email}, (err, user) => {...})```<br><br>```user.comparePassword(req.body.password, (err, isMatch) => {...})``` <br>```bcrypt.compare(plainPassword, this.password)```|※ 입력받은 값이 DB에 있는 정보와 일치하는지 확인<br> (1. 이메일 확인 / 2. 비밀번호 확인)|
-|6|23.06.14|- 로그인 기능 구현-2 |```user.generateToken((err, user) => {...})```<br><br>```var token = jwt.sign(user._id.toHexString(), 'secretToken');```|※입력받은 값이 DB에 있는 정보와 일치하는지 확인<br>(3. 비밀번호가 일치하면 토큰을 생성)<br>※ 토큰을 만들어서 쿠키에 저장|
+|6|23.06.14|- 로그인 기능 구현-2 |```user.generateToken((err, user) => {...})```<br><br>```var token = jwt.sign(user._id.toHexString(), 'secretToken');```<br><br>```$npm install cookie-parser --save```|※입력받은 값이 DB에 있는 정보와 일치하는지 확인<br>(3. 비밀번호가 일치하면 토큰을 생성)<br>※ 토큰을 만들어서 쿠키에 저장|
+|7|23.06.27|- Auth, 로그아웃 기능 구현 |```userSchema.statics.findByToken = function(token, cb){...}```<br><br>```jwt.verify(token, 'secretToken', function(err, decoded){...}```|※ 로그인한 사용자를 인증하기 위해서는 DB에 저장된 토큰과 쿠키에 저장된 토큰이 같은지 비교해야 한다.|
